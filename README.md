@@ -36,9 +36,8 @@ primary registries:
 - Your private container image registry.
   - It doesn't matter what registry you use here, just that it be one that does
     not allow for anonymous image pulls (to protect against violating license
-    agreements with Red Hat and Patero). The `auth.json` file above needs only
-    to be able to pull, but your local runtime login should allow pushes to this
-    repository.
+    agreements with Red Hat). The `auth.json` file above needs only to be able
+    to pull, but your local runtime login should allow pushes to this repository.
 
 Basic Usage
 -----------
