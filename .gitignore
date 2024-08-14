@@ -1,0 +1,6 @@
+*.iso
+*.btn
+*.ign
+auth.json
+.build
+.push

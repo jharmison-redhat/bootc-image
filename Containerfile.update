@@ -1,0 +1,5 @@
+FROM registry.jharmison.com/rhel/bootc:latest
+
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  dnf -y update \
+  && kver=$(cd /usr/lib/modules && ls | sort -V | tail -1); dracut -vf /usr/lib/modules/$kver/initramfs.img $kver
