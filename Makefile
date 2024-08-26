@@ -82,6 +82,11 @@ burn: boot-image/bootc-rhcos$(ISO_SUFFIX).iso
 vm: iso
 	@./create-vm.sh
 
+.PHONY: vm-gui
+vm-gui:
+	@$(MAKE) --no-print-directory iso ISO_SUFFIX=-gui TAG=gui
+	@./create-vm.sh gui -gui 40 16384
+
 .PHONY: clean
 clean:
 	rm -rf .build .push boot-image/*.iso boot-image/*.btn boot-image/*.ign
