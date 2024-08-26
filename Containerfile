@@ -9,7 +9,8 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
   podman \
   curl \
   lm_sensors \
-  btop
+  btop \
+  fastfetch
 
 # Basic user configuration with nss-altfiles
 COPY overlays/users/ /
