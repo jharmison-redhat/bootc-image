@@ -19,32 +19,33 @@ storage:
           set -e
 
           # Try to get connectivity before attempting to pull container image
-          TIMEOUT=900
-          STEP=5
-          DURATION=0
+          registry=$(echo "${IMAGE}" | cut -d/ -f1)
+          timeout=900
+          step=5
+          duration=0
           while true; do
-            if (( DURATION >= TIMEOUT )); then
+            if (( duration >= timeout )); then
               echo "Timed out waiting for connection" >&2
               exit 1
             fi
-            if ping -q -c 1 "${CONNECTIVITY_TEST}"; then
+            if curl -kf "https://$registry"; then
               break
             fi
-            sleep ${STEP}
-            (( DURATION += STEP ))
+            sleep ${step}
+            (( duration += step ))
           done
 
           # If there is a single disk device, choose that
-          DISK_LIST="$(lsblk -J | jq -r '.blockdevices[] | select(.type=="disk") | .name')"
-          if [ "$(echo "$DISK_LIST" | wc -w)" -eq 1 ]; then
-            install_disk="$DISK_LIST"
+          disk_list="$(lsblk -J | jq -r '.blockdevices[] | select(.type=="disk") | .name')"
+          if [ "$(echo "$disk_list" | wc -w)" -eq 1 ]; then
+            install_disk="$disk_list"
           # If there is more than that (or less, which is a much bigger problem), check
           #   if the default disk is in the list at all
-          elif [[ " ${DISK_LIST} " =~ [[:space:]]${DEFAULT_DISK}[[:space:]] ]]; then
+          elif [[ " ${disk_list} " =~ [[:space:]]${DEFAULT_DISK}[[:space:]] ]]; then
             install_disk="${DEFAULT_DISK}"
           # If neither of those is true, we have a problem
           else
-            echo "Unable to identify ${DEFAULT_DISK} in available disks: ${DISK_LIST}"
+            echo "Unable to identify ${DEFAULT_DISK} in available disks: ${disk_list}"
             exit 1
           fi
 

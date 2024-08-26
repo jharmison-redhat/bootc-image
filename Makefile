@@ -9,7 +9,6 @@ LAYERED_ROOTS = $(wildcard layered-builds/Containerfile.*)
 
 # Vars only for building the custom rhcos-based installer
 DEFAULT_DISK ?= vda
-CONNECTIVITY_TEST ?= google.com
 RHCOS_VERSION ?= 4.16
 ISO_SUFFIX ?=
 # ISO_DEST is the device to burn the iso to (such as a USB flash drive for live booting the installer on metal)
@@ -60,7 +59,7 @@ boot-image/rhcos-live.x86_64.iso:
 	curl -Lo $@ https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/$(RHCOS_VERSION)/latest/rhcos-live.x86_64.iso
 
 boot-image/bootc$(ISO_SUFFIX).btn: boot-image/bootc.btn.tpl overlays/auth/etc/ostree/auth.json
-	IMAGE=$(IMAGE) AUTH='$(strip $(file < overlays/auth/etc/ostree/auth.json))' DEFAULT_DISK=$(DEFAULT_DISK) CONNECTIVITY_TEST=$(CONNECTIVITY_TEST) envsubst '$$IMAGE,$$AUTH,$$DEFAULT_DISK,$$CONNECTIVITY_TEST' < $< >$@
+	IMAGE=$(IMAGE) AUTH='$(strip $(file < overlays/auth/etc/ostree/auth.json))' DEFAULT_DISK=$(DEFAULT_DISK) envsubst '$$IMAGE,$$AUTH,$$DEFAULT_DISK' < $< >$@
 
 boot-image/bootc$(ISO_SUFFIX).ign: boot-image/bootc$(ISO_SUFFIX).btn
 	$(RUNTIME) run --rm -iv $${PWD}:/pwd --workdir /pwd --security-opt label=disable quay.io/coreos/butane:release --pretty --strict $< >$@
