@@ -5,6 +5,7 @@ REGISTRY ?= registry.jharmison.com
 REPOSITORY ?= rhel/bootc
 TAG ?= latest
 IMAGE = $(REGISTRY)/$(REPOSITORY):$(TAG)
+LAYERED_ROOTS = $(wildcard layered-builds/Containerfile.*)
 
 # Vars only for building the custom rhcos-based installer
 DEFAULT_DISK ?= vda
@@ -28,15 +29,23 @@ overlays/auth/etc/ostree/auth.json:
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=newer --from $(BASE) . -t $(IMAGE)
 	@touch $@
 
+.build.%: layered-builds/Containerfile.%
+	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(IMAGE) . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
+	@touch $@
+
 .PHONY: build
-build: .build
+build: .build $(patsubst layered-builds/Containerfile.%,.build.%,$(LAYERED_ROOTS))
 
 .push: .build
 	$(RUNTIME) push $(IMAGE)
 	@touch $@
 
+.push.%: .build.%
+	$(RUNTIME) push $(REGISTRY)/$(REPOSITORY):$(*)
+	@touch $@
+
 .PHONY: push
-push: .push
+push: .push $(patsubst layered-builds/Containerfile.%,.push.%,$(LAYERED_ROOTS))
 
 .PHONY: update
 update:
