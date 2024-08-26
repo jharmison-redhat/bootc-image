@@ -1,0 +1,5 @@
+FROM registry.jharmison.com/rhel/bootc:gui
+
+# Install audio firmware
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  dnf -y install alsa-sof-firmware

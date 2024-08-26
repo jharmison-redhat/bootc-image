@@ -6,6 +6,7 @@ REPOSITORY ?= rhel/bootc
 TAG ?= latest
 IMAGE = $(REGISTRY)/$(REPOSITORY):$(TAG)
 LAYERED_ROOTS = $(wildcard layered-builds/Containerfile.*)
+LAYERED_GUI = $(wildcard layered-builds/gui/Containerfile.*)
 
 # Vars only for building the custom rhcos-based installer
 DEFAULT_DISK ?= vda
@@ -15,7 +16,7 @@ ISO_SUFFIX ?=
 ISO_DEST ?= /dev/sda
 
 .PHONY: all
-all: .push
+all: push-all
 
 overlays/users/usr/local/ssh/core.keys:
 	@echo Please put the authorized_keys file you would like for the core user in $@ >&2
@@ -28,12 +29,16 @@ overlays/auth/etc/ostree/auth.json:
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=newer --from $(BASE) . -t $(IMAGE)
 	@touch $@
 
-.build.%: layered-builds/Containerfile.%
+.build.%: layered-builds/Containerfile.% .build
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(IMAGE) . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
 	@touch $@
 
-.PHONY: build
-build: .build $(patsubst layered-builds/Containerfile.%,.build.%,$(LAYERED_ROOTS))
+.build.gui.%: layered-builds/gui/Containerfile.% .build.gui
+	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(REGISTRY)/$(REPOSITORY):gui . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
+	@touch $@
+
+.PHONY: build-all
+build-all: .build $(patsubst layered-builds/Containerfile.%,.build.%,$(LAYERED_ROOTS)) $(patsubst layered-builds/gui/Containerfile.%,.build.gui.%,$(LAYERED_GUI))
 
 .push: .build
 	$(RUNTIME) push $(IMAGE)
@@ -43,8 +48,12 @@ build: .build $(patsubst layered-builds/Containerfile.%,.build.%,$(LAYERED_ROOTS
 	$(RUNTIME) push $(REGISTRY)/$(REPOSITORY):$(*)
 	@touch $@
 
-.PHONY: push
-push: .push $(patsubst layered-builds/Containerfile.%,.push.%,$(LAYERED_ROOTS))
+.push.gui.%: .build.gui.%
+	$(RUNTIME) push $(REGISTRY)/$(REPOSITORY):$(*)
+	@touch $@
+
+.PHONY: push-all
+push-all: .push $(patsubst layered-builds/Containerfile.%,.push.%,$(LAYERED_ROOTS)) $(patsubst layered-builds/gui/Containerfile.%,.push.gui.%,$(LAYERED_GUI))
 
 .PHONY: update
 update:
