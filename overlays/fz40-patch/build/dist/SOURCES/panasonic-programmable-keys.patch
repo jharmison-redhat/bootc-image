@@ -1,0 +1,52 @@
+--- drivers/platform/x86/panasonic-laptop.c	2024-08-27 17:08:34.252364170 +0000
++++ drivers/platform/x86/panasonic-laptop.c	2024-08-27 21:24:50.517540811 +0000
+@@ -12,6 +12,9 @@
+  *---------------------------------------------------------------------------
+  *
+  * ChangeLog:
++ *	Aug.27, 2024    James Harmison <jharmison@redhat.com>
++ *		-v0.99	add platform devices for programmable macro keys
++ *
+  *	Aug.18, 2020	Kenneth Chan <kenneth.t.chan@gmail.com>
+  *		-v0.98	add platform devices for firmware brightness registers
+  *			add support for battery charging threshold (eco mode)
+@@ -222,6 +225,17 @@ static const struct key_entry panasonic_
+ 	{ KE_KEY, 8, { KEY_PROG1 } }, /* Change CPU boost */
+ 	{ KE_KEY, 9, { KEY_BATTERY } },
+ 	{ KE_KEY, 10, { KEY_SUSPEND } },
++	{ KE_KEY, 21, { KEY_MACRO1 } },
++	{ KE_KEY, 22, { KEY_MACRO2 } },
++	{ KE_KEY, 24, { KEY_MACRO3 } },
++	{ KE_KEY, 25, { KEY_MACRO4 } },
++	{ KE_KEY, 34, { KEY_MACRO5 } },
++	{ KE_KEY, 35, { KEY_MACRO6 } },
++	{ KE_KEY, 36, { KEY_MACRO7 } },
++	{ KE_KEY, 37, { KEY_MACRO8 } },
++	{ KE_KEY, 41, { KEY_MACRO9 } },
++	{ KE_KEY, 42, { KEY_MACRO10 } },
++	{ KE_KEY, 43, { KEY_MACRO11 } },
+ 	{ KE_END, 0 }
+ };
+
+@@ -771,17 +785,17 @@ static void acpi_pcc_generate_keyinput(s
+ 	}
+
+ 	/* hack: some firmware sends no key down for sleep / hibernate */
+-	if ((result & 0xf) == 0x7 || (result & 0xf) == 0xa) {
++	if ((result & 0x7f) == 0x7 || (result & 0x7f) == 0xa) {
+ 		if (result & 0x80)
+ 			sleep_keydown_seen = 1;
+ 		if (!sleep_keydown_seen)
+ 			sparse_keymap_report_event(hotk_input_dev,
+-					result & 0xf, 0x80, false);
++					result & 0x7f, 0x80, false);
+ 	}
+
+-	if ((result & 0xf) == 0x7 || (result & 0xf) == 0x9 || (result & 0xf) == 0xa) {
++	if ((result & 0x7f) == 0x7 || (result & 0x7f) == 0x9 || (result & 0x7f) == 0xa) {
+ 		if (!sparse_keymap_report_event(hotk_input_dev,
+-						result & 0xf, result & 0x80, false))
++						result & 0x7f, result & 0x80, false))
+ 			pr_err("Unknown hotkey event: 0x%04llx\n", result);
+ 	}
+ }

@@ -1,9 +1,50 @@
-FROM registry.jharmison.com/rhel/bootc:gui
+FROM registry.jharmison.com/rhel/bootc:gui as base
+
+FROM base as build
+
+WORKDIR /build
+
+# Download the kernel sources
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  kver=$(cd /usr/lib/modules && ls | sort -V | tail -1) \
+  && dnf -y download --source kernel-$kver
+
+# Ensure we can build RPMs
+COPY overlays/fz40-build/ /
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  /usr/local/bin/prereqs.sh
+
+ENV RPMBUILD_BASE_DIR=/build \
+  HOME=/build
+
+# Unpack and prepare the kernel sources
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  mkdir -p /build/dist \
+  && rpmdev-setuptree \
+  && rpm -Uvh kernel-*.src.rpm
+
+WORKDIR /build/dist/SPECS
+
+# Prep for build
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  dnf --enablerepo=rhel-9-for-x86_64-supplementary-rpms,codeready-builder-for-rhel-9-x86_64-rpms builddep -y kernel.spec
+
+# Move the patches into place and build the kernel
+COPY overlays/fz40-patch/ /
+RUN patch kernel.spec kernel.spec.patch \
+  && rpmbuild -bb --with baseonly --target=x86_64 --nodeps kernel.spec
+
+FROM base as fz40
 
 # Install audio firmware
 RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
   dnf -y install \
   alsa-sof-firmware \
   iwl7260-firmware
+
+# Install custom kernel
+RUN --mount=type=bind,from=build,src=/build/dist/RPMS/x86_64/,target=/build \
+  dnf -y install $(find /build -name 'kernel*.rpm' ! -name 'kernel-debuginfo*' ! -name 'kernel-devel*' ! -name 'kernel-uki*') \
+  && kver=$(cd /usr/lib/modules && ls | sort -V | tail -1); dracut -vf /usr/lib/modules/$kver/initramfs.img $kver
 
 COPY overlays/fz40/ /
