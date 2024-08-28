@@ -43,7 +43,8 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
   iwl7260-firmware
 
 # Install custom kernel
-RUN --mount=type=bind,from=build,src=/build/dist/RPMS/x86_64/,target=/build \
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  --mount=type=bind,from=build,src=/build/dist/RPMS/x86_64/,target=/build \
   dnf -y install $(find /build -name 'kernel-5*' -o -name 'kernel-core-5*' -o -name 'kernel-modules-5*' -o -name 'kernel-modules-core-5*') \
   && kver=$(cd /usr/lib/modules && ls | sort -V | grep panasonic | tail -1); dracut -vf /usr/lib/modules/$kver/initramfs.img $kver
 
