@@ -44,7 +44,7 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
 
 # Install custom kernel
 RUN --mount=type=bind,from=build,src=/build/dist/RPMS/x86_64/,target=/build \
-  dnf -y install $(find /build -name 'kernel*.rpm' ! -name 'kernel-debuginfo*' ! -name 'kernel-devel*' ! -name 'kernel-uki*') \
-  && kver=$(cd /usr/lib/modules && ls | sort -V | tail -1); dracut -vf /usr/lib/modules/$kver/initramfs.img $kver
+  dnf -y install $(find /build -name 'kernel-5*' -o -name 'kernel-core-5*' -o -name 'kernel-modules-5*' -o -name 'kernel-modules-core-5*') \
+  && kver=$(cd /usr/lib/modules && ls | sort -V | grep panasonic | tail -1); dracut -vf /usr/lib/modules/$kver/initramfs.img $kver
 
 COPY overlays/fz40/ /
