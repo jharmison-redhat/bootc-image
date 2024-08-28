@@ -32,7 +32,7 @@
  %endif
 
 +# Panasonic Toughbook programmable macro keys don't exist
-+Patch 5000: panasonic-programmable-keys.patch
++Patch5000: panasonic-programmable-keys.patch
 +
  # empty final patch to facilitate testing of kernel patches
  Patch999999: linux-kernel-test.patch
