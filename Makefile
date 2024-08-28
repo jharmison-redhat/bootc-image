@@ -25,15 +25,15 @@ overlays/users/usr/local/ssh/core.keys:
 overlays/auth/etc/ostree/auth.json:
 	@if [ -e "$@" ]; then touch "$@"; else echo "Please put the auth.json for your registry $(REGISTRY)/$(REPOSITORY) in $@"; exit 1; fi
 
-.build: Containerfile overlays/auth/etc/ostree/auth.json $(shell git ls-files | grep '^overlays/') overlays/users/usr/local/ssh/core.keys
+.build: Containerfile overlays/auth/etc/ostree/auth.json $(shell find overlays -type f -path 'overlays/auth*' -o -path 'overlays/users*') overlays/users/usr/local/ssh/core.keys
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=newer --from $(BASE) . -t $(IMAGE)
 	@touch $@
 
-.build.%: layered-builds/Containerfile.% .build
+.build.%: layered-builds/Containerfile.% .build $(shell find overlays -type f -path 'overlays/%*')
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(IMAGE) . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
 	@touch $@
 
-.build.gui.%: layered-builds/gui/Containerfile.% .build.gui
+.build.gui.%: layered-builds/gui/Containerfile.% .build.gui $(shell find overlays -type f -path 'overlays/%*')
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(REGISTRY)/$(REPOSITORY):gui . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
 	@touch $@
 
