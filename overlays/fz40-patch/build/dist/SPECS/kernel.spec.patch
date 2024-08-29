@@ -1,5 +1,5 @@
---- kernel.spec	2024-08-09 16:48:58.000000000 +0000
-+++ kernel.spec	2024-08-27 21:37:39.517157564 +0000
+--- kernel.spec	2024-08-09 12:48:58.000000000 -0400
++++ kernel.spec	2024-08-29 10:38:02.792352995 -0400
 @@ -107,15 +107,9 @@ Summary: The Linux kernel
  %define secure_boot_arch x86_64 aarch64 s390x ppc64le
  %endif
@@ -18,7 +18,7 @@
 
  # Compress modules only for architectures that build modules
  %ifarch noarch
-@@ -162,7 +162,7 @@ Summary: The Linux kernel
+@@ -162,7 +156,7 @@ Summary: The Linux kernel
  #  to build the base kernel using the debug configuration. (Specifying
  #  the --with-release option overrides this setting.)
  %define debugbuildsenabled 1
@@ -27,7 +27,7 @@
  %define specversion 5.14.0
  %define patchversion 5.14
  %define pkgrelease 427.31.1
-@@ -967,6 +967,9 @@ Source4002: gating.yaml
+@@ -967,6 +961,9 @@ Source4002: gating.yaml
  Patch1: patch-%{patchversion}-redhat.patch
  %endif
 
@@ -37,7 +37,16 @@
  # empty final patch to facilitate testing of kernel patches
  Patch999999: linux-kernel-test.patch
 
-@@ -2123,10 +2120,10 @@ BuildKernel() {
+@@ -1696,6 +1693,8 @@ cp -a %{SOURCE1} .
+ ApplyOptionalPatch patch-%{patchversion}-redhat.patch
+ %endif
+
++ApplyPatch panasonic-programmable-keys.patch
++
+ ApplyOptionalPatch linux-kernel-test.patch
+
+ # END OF PATCH APPLICATIONS
+@@ -2123,10 +2122,10 @@ BuildKernel() {
      # Don't build kabi base for debug kernels
      if [ "$Variant" != "zfcpdump" -a "$Variant" != "debug" ]; then
          mkdir -p $RPM_BUILD_ROOT/kabi-dwarf
@@ -50,7 +59,7 @@
 
          echo "**** GENERATING DWARF-based kABI baseline dataset ****"
          chmod 0755 $RPM_BUILD_ROOT/kabi-dwarf/run_kabi-dw.sh
-@@ -2142,10 +2139,10 @@ BuildKernel() {
+@@ -2142,10 +2141,10 @@ BuildKernel() {
  %if %{with_kabidwchk}
      if [ "$Variant" != "zfcpdump" ]; then
          mkdir -p $RPM_BUILD_ROOT/kabi-dwarf
@@ -63,7 +72,7 @@
 
              echo "**** GENERATING DWARF-based kABI dataset ****"
              chmod 0755 $RPM_BUILD_ROOT/kabi-dwarf/run_kabi-dw.sh
-@@ -2934,7 +2931,7 @@ INSTALL_KABI_PATH=$RPM_BUILD_ROOT/lib/mo
+@@ -2934,7 +2933,7 @@ INSTALL_KABI_PATH=$RPM_BUILD_ROOT/lib/mo
  mkdir -p $INSTALL_KABI_PATH
 
  # install kabi releases directories
