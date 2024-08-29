@@ -1,5 +1,5 @@
---- drivers/platform/x86/panasonic-laptop.c	2021-04-07 13:47:00.000000000 -0400
-+++ drivers/platform/x86/panasonic-laptop.c	2024-08-28 13:04:38.155813854 -0400
+--- old/drivers/platform/x86/panasonic-laptop.c	2021-04-07 13:47:00.000000000 -0400
++++ new/drivers/platform/x86/panasonic-laptop.c	2024-08-28 13:04:38.155813854 -0400
 @@ -12,6 +12,9 @@
   *---------------------------------------------------------------------------
   *
