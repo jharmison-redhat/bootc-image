@@ -1,0 +1,37 @@
+From 48c30c653bbb9fc6ccc250a4680d05668bf0085a Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 30 Aug 2024 12:40:29 +0200
+Subject: [PATCH] platform/x86: panasonic-laptop: Make SINF length errors more
+ verbose
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/platform/x86/panasonic-laptop.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/platform/x86/panasonic-laptop.c b/drivers/platform/x86/panasonic-laptop.c
+index cf845ee1c7b1..4e365877d66b 100644
+--- a/drivers/platform/x86/panasonic-laptop.c
++++ b/drivers/platform/x86/panasonic-laptop.c
+@@ -337,7 +337,8 @@ static int acpi_pcc_retrieve_biosdata(struct pcc_acpi *pcc)
+ 	}
+ 
+ 	if (pcc->num_sifr < hkey->package.count) {
+-		pr_err("SQTY reports bad SINF length\n");
++		pr_err("SQTY reports bad SINF length SQTY: %ld SINF-pkg-count: %d\n",
++		       pcc->num_sifr, hkey->package.count);
+ 		status = AE_ERROR;
+ 		goto end;
+ 	}
+@@ -964,7 +965,7 @@ static int acpi_pcc_hotkey_add(struct acpi_device *device)
+ 	num_sifr = acpi_pcc_get_sqty(device);
+ 
+ 	if (num_sifr < 0 || num_sifr > 255) {
+-		pr_err("num_sifr out of range");
++		pr_err("num_sifr %d out of range\n", num_sifr);
+ 		return -ENODEV;
+ 	}
+ 
+-- 
+2.46.0
+
