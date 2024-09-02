@@ -10,3 +10,4 @@
 +		pr_err("num_sifr %d out of range %d - 255\n", num_sifr, SINF_CUR_BRIGHT);
  		return -ENODEV;
  	}
+
