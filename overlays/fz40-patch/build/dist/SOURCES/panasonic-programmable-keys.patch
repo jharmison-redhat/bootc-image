@@ -1,5 +1,5 @@
 --- old/drivers/platform/x86/panasonic-laptop.c	2021-04-07 13:47:00.000000000 -0400
-+++ new/drivers/platform/x86/panasonic-laptop.c	2024-08-28 13:04:38.155813854 -0400
++++ new/drivers/platform/x86/panasonic-laptop.c	2024-09-02 13:18:59.560400634 -0400
 @@ -12,6 +12,9 @@
   *---------------------------------------------------------------------------
   *
@@ -52,7 +52,7 @@
  	}
 
 -	if ((result & 0xf) == 0x7 || (result & 0xf) == 0x9 || (result & 0xf) == 0xa) {
-+	if ((result & 0x7f) == 0x7 || (result & 0x7f) == 0x9 || (result & 0x7f) == 0xa) {
++	if ((result & 0x7f) == 0x7 || (result & 0x7f) == 0x9 || (result & 0x7f) == 0xa || (result & 0x7f) > 0x14) {
  		if (!sparse_keymap_report_event(hotk_input_dev,
 -						result & 0xf, result & 0x80, false))
 +						result & 0x7f, result & 0x80, false))

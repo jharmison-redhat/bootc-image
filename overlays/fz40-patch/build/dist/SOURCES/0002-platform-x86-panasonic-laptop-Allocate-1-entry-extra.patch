@@ -1,0 +1,25 @@
+--- a/drivers/platform/x86/panasonic-laptop.c
++++ b/drivers/platform/x86/panasonic-laptop.c
+@@ -337,7 +337,8 @@ static int acpi_pcc_retrieve_biosdata(struct pcc_acpi *pcc)
+ 	}
+ 
+ 	if (pcc->num_sifr < hkey->package.count) {
+-		pr_err("SQTY reports bad SINF length\n");
++		pr_err("SQTY reports bad SINF length SQTY: %ld SINF-pkg-count: %d\n",
++		       pcc->num_sifr, hkey->package.count);
+ 		status = AE_ERROR;
+ 		goto end;
+ 	}
+@@ -968,6 +969,12 @@ static int acpi_pcc_hotkey_add(struct acpi_device *device)
+ 		return -ENODEV;
+ 	}
+ 
++	/*
++	 * Some DSDT-s have an of by one bug where the SINF package count is
++	 * one higher then the SQTY reported value, allocate 1 entry extra.
++	 */
++	num_sifr++;
++
+ 	pcc = kzalloc(sizeof(struct pcc_acpi), GFP_KERNEL);
+ 	if (!pcc) {
+ 		pr_err("Couldn't allocate mem for pcc");

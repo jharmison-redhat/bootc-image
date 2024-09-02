@@ -1,0 +1,12 @@
+--- a/drivers/platform/x86/panasonic-laptop.c
++++ b/drivers/platform/x86/panasonic-laptop.c
+@@ -963,8 +963,8 @@ static int acpi_pcc_hotkey_add(struct acpi_device *device)
+ 
+ 	num_sifr = acpi_pcc_get_sqty(device);
+ 
+-	if (num_sifr < 0 || num_sifr > 255) {
+-		pr_err("num_sifr out of range");
++	if (num_sifr < SINF_CUR_BRIGHT || num_sifr > 255) {
++		pr_err("num_sifr %d out of range %d - 255\n", num_sifr, SINF_CUR_BRIGHT);
+ 		return -ENODEV;
+ 	}
