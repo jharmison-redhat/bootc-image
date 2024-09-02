@@ -29,11 +29,11 @@ overlays/auth/etc/ostree/auth.json:
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=newer --from $(BASE) . -t $(IMAGE)
 	@touch $@
 
-.build.%: layered-builds/Containerfile.% .build $(shell find overlays -type f -path 'overlays/%*')
+.build.%: layered-builds/Containerfile.% .build $(shell find overlays -type f)
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(IMAGE) . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
 	@touch $@
 
-.build.gui.%: layered-builds/gui/Containerfile.% .build.gui $(shell find overlays -type f -path 'overlays/%*')
+.build.gui.%: layered-builds/gui/Containerfile.% .build.gui $(shell find overlays -type f)
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(REGISTRY)/$(REPOSITORY):gui . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
 	@touch $@
 
