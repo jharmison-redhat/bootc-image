@@ -1,4 +1,4 @@
-FROM registry.jharmison.com/rhel/bootc:base
+FROM registry.jharmison.com/rhel/bootc:latest
 
 WORKDIR /build
 
