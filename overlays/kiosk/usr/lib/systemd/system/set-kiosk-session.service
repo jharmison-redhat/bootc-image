@@ -1,0 +1,9 @@
+[Unit]
+Description=Set the kiosk session as default
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/set-kiosk-session.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Unset the kiosk session as default (in case we are bootc switching)
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStop=/usr/local/bin/unset-kiosk-session.sh
+
+[Install]
+WantedBy=multi-user.target

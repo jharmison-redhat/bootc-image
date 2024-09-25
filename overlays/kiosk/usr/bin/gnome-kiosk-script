@@ -1,3 +1,6 @@
 #!/usr/bin/sh
 
+while ! ping -c1 google.com >/dev/null 2>&1; do
+	sleep 1
+done
 exec firefox -kiosk https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux/image-mode
