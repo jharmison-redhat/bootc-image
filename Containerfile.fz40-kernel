@@ -1,6 +1,4 @@
-FROM registry.jharmison.com/rhel/bootc:gui as base
-
-FROM base as build
+FROM registry.jharmison.com/rhel/bootc:base
 
 WORKDIR /build
 
@@ -10,7 +8,7 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
   && dnf -y download --source kernel-$kver
 
 # Ensure we can build RPMs
-COPY overlays/fz40-build/ /
+COPY overlays/rpm-build/ /
 RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
   /usr/local/bin/prereqs.sh
 
@@ -30,23 +28,6 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
   dnf --enablerepo=rhel-9-for-x86_64-supplementary-rpms,codeready-builder-for-rhel-9-x86_64-rpms builddep -y kernel.spec
 
 # Move the patches into place and build the kernel
-COPY overlays/fz40-patch/ /
+COPY overlays/fz40-kernel-patch/ /
 RUN patch kernel.spec kernel.spec.patch \
   && rpmbuild -bb --with baseonly --target=x86_64 --nodeps kernel.spec
-
-FROM base as fz40
-
-# Install audio firmware
-RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
-  dnf -y install \
-  alsa-sof-firmware \
-  iwl7260-firmware
-
-# Install custom kernel
-RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
-  --mount=type=bind,from=build,src=/build/dist/RPMS/x86_64/,target=/build \
-  rpm-ostree cliwrap install-to-root / \
-  && rpm-ostree override replace $(find /build -name 'kernel-5*' -o -name 'kernel-core-5*' -o -name 'kernel-modules-5*' -o -name 'kernel-modules-core-5*') \
-  && ostree container commit
-
-COPY overlays/fz40/ /

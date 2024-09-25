@@ -3,10 +3,9 @@ RUNTIME ?= podman
 BASE ?= registry.redhat.io/rhel9/rhel-bootc:9.4
 REGISTRY ?= registry.jharmison.com
 REPOSITORY ?= rhel/bootc
+REG_REPO := $(REGISTRY)/$(REPOSITORY)
 TAG ?= latest
-IMAGE = $(REGISTRY)/$(REPOSITORY):$(TAG)
-LAYERED_ROOTS = $(wildcard layered-builds/Containerfile.*)
-LAYERED_GUI = $(wildcard layered-builds/gui/Containerfile.*)
+IMAGE = $(REG_REPO):$(TAG)
 
 # Vars only for building the custom rhcos-based installer
 DEFAULT_DISK ?= vda
@@ -23,37 +22,39 @@ overlays/users/usr/local/ssh/core.keys:
 	@exit 1
 
 overlays/auth/etc/ostree/auth.json:
-	@if [ -e "$@" ]; then touch "$@"; else echo "Please put the auth.json for your registry $(REGISTRY)/$(REPOSITORY) in $@"; exit 1; fi
+	@if [ -e "$@" ]; then touch "$@"; else echo "Please put the auth.json for your registry $(REG_REPO) in $@"; exit 1; fi
 
 .build: Containerfile overlays/auth/etc/ostree/auth.json $(shell find overlays -type f -path 'overlays/auth*' -o -path 'overlays/users*') overlays/users/usr/local/ssh/core.keys
 	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=newer --from $(BASE) . -t $(IMAGE)
 	@touch $@
 
-.build.%: layered-builds/Containerfile.% .build $(shell find overlays -type f)
-	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(IMAGE) . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
+.build.%: Containerfile.% .build
+	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never . -f $(<) -t $(REG_REPO):$(*)
 	@touch $@
 
 .build.gui.%: layered-builds/gui/Containerfile.% .build.gui $(shell find overlays -type f)
-	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(REGISTRY)/$(REPOSITORY):gui . -f $(<) -t $(REGISTRY)/$(REPOSITORY):$(*)
+	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=never --from $(REG_REPO):gui . -f $(<) -t $(REG_REPO):$(*)
 	@touch $@
 
+.PHONY: build-fz40
+build-fz40: .build .build.fz40-base .build.fz40-kernel .build.fz40-gui
+
 .PHONY: build-all
-build-all: .build $(patsubst layered-builds/Containerfile.%,.build.%,$(LAYERED_ROOTS)) $(patsubst layered-builds/gui/Containerfile.%,.build.gui.%,$(LAYERED_GUI))
+build-all: .build build-fz40
 
 .push: .build
 	$(RUNTIME) push $(IMAGE)
 	@touch $@
 
 .push.%: .build.%
-	$(RUNTIME) push $(REGISTRY)/$(REPOSITORY):$(*)
+	$(RUNTIME) push $(REG_REPO):$(*)
 	@touch $@
 
-.push.gui.%: .build.gui.%
-	$(RUNTIME) push $(REGISTRY)/$(REPOSITORY):$(*)
-	@touch $@
+.PHONY: push-fz40
+push-fz40: .push .push.fz40-base .push.fz40-kernel .push.fz40-gui
 
 .PHONY: push-all
-push-all: .push $(patsubst layered-builds/Containerfile.%,.push.%,$(LAYERED_ROOTS)) $(patsubst layered-builds/gui/Containerfile.%,.push.gui.%,$(LAYERED_GUI))
+push-all: .push push-fz40
 
 .PHONY: update
 update:
@@ -86,16 +87,7 @@ iso: boot-image/bootc-rhcos$(ISO_SUFFIX).iso
 burn: boot-image/bootc-rhcos$(ISO_SUFFIX).iso
 	sudo dd if=./$< of=$(ISO_DEST) bs=1M conv=fsync status=progress
 
-.PHONY: vm
-vm: iso
-	@./create-vm.sh
-
-.PHONY: vm-gui
-vm-gui:
-	@$(MAKE) --no-print-directory iso ISO_SUFFIX=-gui TAG=gui
-	@./create-vm.sh gui -gui 40 16384
-
 .PHONY: clean
 clean:
-	rm -rf .build .push boot-image/*.iso boot-image/*.btn boot-image/*.ign
+	rm -rf .build* .push* boot-image/*.iso boot-image/*.btn boot-image/*.ign
 	buildah prune -f

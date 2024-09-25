@@ -1,8 +1,7 @@
 FROM registry.jharmison.com/rhel/bootc:latest
 
-# Install a GUI
+# Install audio firmware
 RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
-  dnf -y group install GNOME base-x Fonts
-
-# The GUI user needs logged into without a password
-COPY overlays/gui/ /
+  dnf -y install \
+  alsa-sof-firmware \
+  iwl7260-firmware

@@ -1,0 +1,17 @@
+FROM registry.jharmison.com/rhel/bootc:fz40-kernel as kernel
+
+FROM registry.jharmison.com/rhel/bootc:fz40-base
+
+# The GUI user needs logged into without a password
+COPY overlays/gui/ /
+# Install a GUI
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  dnf -y group install GNOME base-x Fonts
+
+COPY overlays/fz40-gui/ /
+# Install custom kernel
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  --mount=type=bind,from=kernel,src=/build/dist/RPMS/x86_64/,target=/build \
+  rpm-ostree cliwrap install-to-root / \
+  && rpm-ostree override replace $(find /build -name 'kernel-5*' -o -name 'kernel-core-5*' -o -name 'kernel-modules-5*' -o -name 'kernel-modules-core-5*') \
+  && ostree container commit
