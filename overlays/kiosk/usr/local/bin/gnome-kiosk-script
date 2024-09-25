@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+
+exec firefox -kiosk https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux/image-mode
