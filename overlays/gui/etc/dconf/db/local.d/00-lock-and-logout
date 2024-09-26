@@ -1,4 +1,3 @@
 [org/gnome/desktop/lockdown]
-disable-log-out=true
 disable-user-switching=true
 disable-lock-screen=true
