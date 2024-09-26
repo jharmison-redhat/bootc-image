@@ -37,11 +37,13 @@ overlays/auth/etc/ostree/auth.json:
 	@touch $@
 
 .build.fz40-base: .build
-.build.fz40-kernel: .build $(shell find overlays/rpm-build) $(shell find overlays/fz40-kernel-patch -type f)
+.build.fz40-kernel: .build $(shell find overlays/rpm-build -type f) $(shell find overlays/fz40-kernel-patch -type f)
 .build.fz40-gui: .build.fz40-base .build.fz40-kernel $(shell find overlays/gui -type f) $(shell find overlays/fz40-gui -type f)
-.build.fz40-kiosk-web: .build.fz40-base $(shell find overlays/gui) $(shell find overlays/kiosk)
+.build.fz40-kiosk-web: .build.fz40-base $(shell find overlays/gui -type f) $(shell find overlays/kiosk -type f)
+.build.fz40-kiosk-flightgear: .build.fz40-kiosk-web $(shell find overlays/flightgear -type f)
+
 .PHONY: build-fz40
-build-fz40: .build.fz40-gui .build.fz40-kiosk-web
+build-fz40: .build.fz40-gui .build.fz40-kiosk-web .build.fz40-kiosk-flightgear
 
 .PHONY: build-all
 build-all: .build build-fz40
@@ -55,7 +57,7 @@ build-all: .build build-fz40
 	@touch $@
 
 .PHONY: push-fz40
-push-fz40: .push .push.fz40-base .push.fz40-kernel .push.fz40-gui .push.fz40-kiosk-web
+push-fz40: .push .push.fz40-base .push.fz40-kernel .push.fz40-gui .push.fz40-kiosk-web .push.fz40-kiosk-flightgear
 
 .PHONY: push-all
 push-all: .push push-fz40

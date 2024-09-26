@@ -1,6 +1,8 @@
 FROM registry.jharmison.com/rhel/bootc:fz40-base
 
-RUN dnf install -y gnome-shell gnome-kiosk gnome-kiosk-script-session firefox unzip
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  dnf install -y gnome-shell gnome-kiosk gnome-kiosk-script-session firefox
+
 # The GUI user needs logged into without a password
 COPY overlays/gui/ /
 COPY overlays/kiosk/ /

@@ -1,0 +1,24 @@
+FROM registry.jharmison.com/rhel/bootc:fz40-kiosk-web
+
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  dnf -y install unzip
+
+RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
+  mkdir -p /tmp/rpms \
+  && cd /tmp/rpms \
+  && curl -Lo- https://s3.jharmison.com/public/fg-rpms.tgz | tar xvz \
+  && cd flightgear-rpms \
+  && dnf -y install --enablerepo=codeready-builder-for-rhel-9-x86_64-rpms *.rpm \
+  && cd / \
+  && rm -rf /tmp/rpms /usr/share/flightgear/Scenery
+
+RUN mkdir -p /usr/share/flightgear/Scenery \
+  && curl -Lo /tmp/scenery.tgz https://s3.jharmison.com/public/SceneryCache.tgz \
+  && tar xvzf /tmp/scenery.tgz -C /usr/share/flightgear/Scenery --owner=0 --group=0 \
+  && rm -f /tmp/scenery.tgz
+
+RUN curl -Lo /tmp/F-35B.zip https://mirrors.ibiblio.org/flightgear/ftp/Aircraft-2020/F-35B.zip \
+  && unzip /tmp/F-35B.zip -d /usr/share/flightgear/Aircraft \
+  && rm -f /tmp/F-35B.zip
+
+COPY overlays/flightgear/ /

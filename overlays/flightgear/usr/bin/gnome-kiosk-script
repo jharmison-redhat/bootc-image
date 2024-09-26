@@ -1,0 +1,54 @@
+#!/usr/bin/sh
+
+source /usr/share/flightgear/config.sh
+if [ -e /usr/share/flightgear/extra.sh ]; then
+    source /usr/share/flightgear/extra.sh
+fi
+
+export FG_HOME="${HOME:-/var/home/$(id -un)}/.fgfs"
+
+# FlightGear tabula rasa
+rm -rf "$FG_HOME"
+
+# run FlightGear
+fgfs \
+    --enable-hud-3d \
+    --enable-random-objects \
+    --enable-random-vegetation \
+    --enable-random-buildings \
+    --enable-ai-models \
+    --enable-ai-traffic \
+    --disable-rembrandt \
+    --fog-nicest \
+    --enable-distance-attenuation \
+    --enable-horizon-effect \
+    --enable-specular-highlight \
+    --enable-fullscreen \
+    --enable-sound \
+    --shading-smooth \
+    --aircraft=$FLIGHT_MODEL \
+    --in-air \
+    --enable-auto-coordination \
+    --timeofday=$TIMEOFDAY \
+    --season=summer \
+    --lat=$LAT_DEGREES \
+    --lon=$LON_DEGREES \
+    --altitude=$ALTITUDE \
+    --heading=0 \
+    --roll=0 \
+    --pitch=0 \
+    --vc=$SPEED \
+    --metar='XXXX 012345Z 15003KT 19SM FEW072 FEW350 25/07 Q1028 NOSIG' \
+    --disable-real-weather-fetch \
+    --enable-clouds3d \
+    --disable-terrasync \
+    --fg-scenery=/usr/share/kiosk-mode/Scenery \
+    --prop:/autopilot/settings/heading-bug-deg=$AP_HEADING \
+    --prop:/autopilot/settings/target-speed-kt=$AP_SPEED \
+    --prop:/autopilot/settings/target-altitude-ft=$AP_ALTITUDE \
+    --prop:/autopilot/locks/altitude="altitude-hold" \
+    --prop:/autopilot/locks/heading="dg-heading-hold" \
+    --prop:/autopilot/locks/speed="speed-with-throttle" \
+    --prop:/engines/engine[0]/running=true \
+    --prop:/engines/engine[0]/throttle=$THROTTLE_SETTING \
+    "${EXTRA_ARGS[@]}"
