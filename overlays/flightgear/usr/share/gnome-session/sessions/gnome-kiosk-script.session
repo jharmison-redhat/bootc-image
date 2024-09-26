@@ -1,0 +1,4 @@
+[GNOME Session]
+Name=Kiosk
+# Let us use sound and the touchscreen
+RequiredComponents=org.gnome.Kiosk;org.gnome.SettingsDaemon.MediaKeys;org.gnome.SettingsDaemon.Wacom;org.gnome.Kiosk.Script;
