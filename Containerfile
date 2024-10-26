@@ -10,7 +10,8 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
   curl \
   lm_sensors \
   btop \
-  fastfetch
+  fastfetch \
+  python3.12-pip
 
 # Basic user configuration with nss-altfiles
 COPY overlays/users/ /
