@@ -22,3 +22,6 @@ RUN useradd -m core \
 
 # Enable the deployed system to pull its own updates
 COPY overlays/auth/ /
+
+# Ensure that auditd will work correctly
+COPY overlays/auditd/ /

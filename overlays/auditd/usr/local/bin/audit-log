@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/usr/bin/mkdir -p /var/log/audit
+chmod 0700 /var/log/audit

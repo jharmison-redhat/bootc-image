@@ -1,0 +1,6 @@
+[Unit]
+Description=Ensure the auditd directory exists
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/audit-log
