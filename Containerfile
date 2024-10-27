@@ -11,7 +11,9 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
   lm_sensors \
   btop \
   fastfetch \
-  python3.12-pip
+  python3.12-pip \
+  audit \
+  policycoreutils-python-utils
 
 # Basic user configuration with nss-altfiles
 COPY overlays/users/ /
