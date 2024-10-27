@@ -1,0 +1,2 @@
+[keyboard]
+enabled_keys = ["KEY_MACRO5", "KEY_MACRO6", "KEY_MACRO7", "KEY_MACRO8"]
