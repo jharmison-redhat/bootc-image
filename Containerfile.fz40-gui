@@ -16,8 +16,10 @@ RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cach
 RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/roothome/.cache,type=tmpfs --mount=target=/var/roothome/.cache/pip,type=cache,id=pip-cache \
   python3.12 -m venv /usr/local/lib/panasonic-programmable-keys \
   && /usr/local/lib/panasonic-programmable-keys/bin/pip install --upgrade pip setuptools wheel \
-  && /usr/local/lib/panasonic-programmable-keys/bin/pip install panasonic-programmable-keys==0.1.3 \
-  && ln -s /usr/local/lib/panasonic-programmable-keys/bin/panasonic-programmable-keys /usr/local/bin/panasonic-programmable-keys
+  && /usr/local/lib/panasonic-programmable-keys/bin/pip install panasonic-programmable-keys==0.1.4 \
+  && ln -s /usr/local/lib/panasonic-programmable-keys/bin/panasonic-programmable-keys /usr/local/bin/panasonic-programmable-keys \
+  && /usr/local/bin/panasonic-programmable-keys install \
+  && update-desktop-database
 
 # Install custom kernel
 RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
