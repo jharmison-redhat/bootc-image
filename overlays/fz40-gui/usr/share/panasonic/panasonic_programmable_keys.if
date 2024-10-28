@@ -1,0 +1,40 @@
+
+## <summary>policy for panasonic_programmable_keys</summary>
+
+########################################
+## <summary>
+##	Execute panasonic_programmable_keys_exec_t in the panasonic_programmable_keys domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`panasonic_programmable_keys_domtrans',`
+	gen_require(`
+		type panasonic_programmable_keys_t, panasonic_programmable_keys_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, panasonic_programmable_keys_exec_t, panasonic_programmable_keys_t)
+')
+
+######################################
+## <summary>
+##	Execute panasonic_programmable_keys in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`panasonic_programmable_keys_exec',`
+	gen_require(`
+		type panasonic_programmable_keys_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, panasonic_programmable_keys_exec_t)
+')

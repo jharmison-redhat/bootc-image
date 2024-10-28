@@ -1,0 +1,35 @@
+policy_module(panasonic_programmable_keys, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+require {
+    type event_device_t;
+    type var_run_t;
+}
+
+type panasonic_programmable_keys_t;
+type panasonic_programmable_keys_run_t;
+type panasonic_programmable_keys_exec_t;
+init_daemon_domain(panasonic_programmable_keys_t, panasonic_programmable_keys_exec_t)
+
+########################################
+#
+# panasonic_programmable_keys local policy
+#
+allow panasonic_programmable_keys_t self:unix_stream_socket create_stream_socket_perms;
+
+domain_use_interactive_fds(panasonic_programmable_keys_t)
+
+files_read_etc_files(panasonic_programmable_keys_t)
+
+miscfiles_read_localization(panasonic_programmable_keys_t)
+
+# Allow reading event device
+allow panasonic_programmable_keys_t event_device_t:chr_file open;
+# Allow all operations on sockets and other run files
+allow panasonic_programmable_keys_t panasonic_programmable_keys_run_t:chr_file *;
+# Ensure new socket inherit correct type, regardless of the directory
+filetrans_pattern(panasonic_programmable_keys_t, var_run_t, panasonic_programmable_keys_run_t, socket, "panasonic_programmable_socket")
