@@ -1,6 +1,0 @@
-[Unit]
-Description=Ensure the SELinux policy for the programmable keys are installed
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/panasonic-programmable-keys-policy

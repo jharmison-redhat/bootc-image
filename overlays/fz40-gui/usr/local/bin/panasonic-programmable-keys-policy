@@ -1,6 +1,0 @@
-#!/usr/bin/sh
-
-set -ex
-
-/usr/sbin/semodule -i /usr/share/panasonic/panasonic_programmable_keys.pp
-/usr/sbin/restorecon -Friv /usr/local/lib/panasonic-programmable-keys
