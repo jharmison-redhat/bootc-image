@@ -2,3 +2,4 @@
 
 /usr/bin/mkdir -p /var/log/audit
 chmod 0700 /var/log/audit
+restorecon -riv /var/log/audit
