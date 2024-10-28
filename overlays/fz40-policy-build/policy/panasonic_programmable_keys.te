@@ -30,6 +30,6 @@ miscfiles_read_localization(panasonic_programmable_keys_t)
 # Allow reading event device
 allow panasonic_programmable_keys_t event_device_t:chr_file open;
 # Allow all operations on sockets and other run files
-allow panasonic_programmable_keys_t panasonic_programmable_keys_run_t:chr_file *;
+allow panasonic_programmable_keys_t panasonic_programmable_keys_run_t:socket *;
 # Ensure new socket inherit correct type, regardless of the directory
 filetrans_pattern(panasonic_programmable_keys_t, var_run_t, panasonic_programmable_keys_run_t, socket, "panasonic_programmable_socket")

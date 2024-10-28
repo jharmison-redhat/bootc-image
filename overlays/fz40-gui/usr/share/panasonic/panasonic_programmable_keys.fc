@@ -1,2 +1,0 @@
-/usr/local/lib/panasonic-programmable-keys/bin/panasonic-programmable-keys		--	gen_context(system_u:object_r:panasonic_programmable_keys_exec_t,s0)
-/run/panasonic(/.*)?															--	gen_context(system_u:object_r:panasonic_programmable_keys_run_t,s0)
