@@ -3,31 +3,31 @@ FROM registry.jharmison.com/rhel/bootc:latest
 WORKDIR /build
 
 # Download the kernel sources
-RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
-  kver=$(cd /usr/lib/modules && ls | sort -V | tail -1) \
-  && dnf -y download --source kernel-$kver
+RUN --mount=type=tmpfs,target=/var/cache --mount=type=cache,target=/var/cache/dnf,id=dnf-cache \
+    kver=$(cd /usr/lib/modules && ls | sort -V | tail -1) \
+    && dnf -y download --source kernel-$kver
 
 # Ensure we can build RPMs
 COPY overlays/rpm-build/ /
-RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
-  /usr/local/bin/prereqs.sh
+RUN --mount=type=tmpfs,target=/var/cache --mount=type=cache,target=/var/cache/dnf,id=dnf-cache \
+    /usr/local/bin/prereqs.sh
 
 ENV RPMBUILD_BASE_DIR=/build \
-  HOME=/build
+    HOME=/build
 
 # Unpack and prepare the kernel sources
-RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
-  mkdir -p /build/dist \
-  && rpmdev-setuptree \
-  && rpm -Uvh kernel-*.src.rpm
+RUN --mount=type=tmpfs,target=/var/cache --mount=type=cache,target=/var/cache/dnf,id=dnf-cache \
+    mkdir -p /build/dist \
+    && rpmdev-setuptree \
+    && rpm -Uvh kernel-*.src.rpm
 
 WORKDIR /build/dist/SPECS
 
 # Prep for build
-RUN --mount=target=/var/cache,type=tmpfs --mount=target=/var/cache/dnf,type=cache,id=dnf-cache \
-  dnf --enablerepo=rhel-9-for-x86_64-supplementary-rpms,codeready-builder-for-rhel-9-x86_64-rpms builddep -y kernel.spec
+RUN --mount=type=tmpfs,target=/var/cache --mount=type=cache,target=/var/cache/dnf,id=dnf-cache \
+    dnf --enablerepo=rhel-9-for-x86_64-supplementary-rpms,codeready-builder-for-rhel-9-x86_64-rpms builddep -y kernel.spec
 
 # Move the patches into place and build the kernel
 COPY overlays/fz40-kernel-patch/ /
 RUN patch kernel.spec kernel.spec.patch \
-  && rpmbuild -bb --with baseonly --target=x86_64 --nodeps kernel.spec
+    && rpmbuild -bb --with baseonly --target=x86_64 --nodeps kernel.spec

@@ -1,6 +1,6 @@
 # Vars for building the bootc image
 RUNTIME ?= podman
-BASE ?= registry.redhat.io/rhel9/rhel-bootc:9.4
+BASE ?= registry.redhat.io/rhel9/rhel-bootc:9.5
 REGISTRY ?= registry.jharmison.com
 REPOSITORY ?= rhel/bootc
 REG_REPO := $(REGISTRY)/$(REPOSITORY)
@@ -61,11 +61,6 @@ push-fz40: .push .push.fz40-base .push.fz40-kernel .push.fz40-gui .push.fz40-kio
 
 .PHONY: push-all
 push-all: .push push-fz40
-
-.PHONY: update
-update:
-	$(RUNTIME) build --security-opt label=disable --arch amd64 --pull=newer --from $(IMAGE) -f Containerfile.update . -t $(IMAGE)
-	$(RUNTIME) push $(IMAGE)
 
 .PHONY: debug
 debug:
