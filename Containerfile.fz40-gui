@@ -37,7 +37,7 @@ RUN semodule -i /usr/share/panasonic/panasonic_programmable_keys.pp
 RUN --mount=type=tmpfs,target=/var/roothome/.cache --mount=type=cache,target=/var/roothome/.cache/pip,id=pip-cache \
     python3.12 -m venv /usr/local/lib/panasonic-programmable-keys \
     && /usr/local/lib/panasonic-programmable-keys/bin/pip install --upgrade pip setuptools wheel \
-    && /usr/local/lib/panasonic-programmable-keys/bin/pip install panasonic-programmable-keys==0.2.1 \
+    && /usr/local/lib/panasonic-programmable-keys/bin/pip install panasonic-programmable-keys==0.2.2 \
     && ln -s /usr/local/lib/panasonic-programmable-keys/bin/panasonic-programmable-keys /usr/local/bin/panasonic-programmable-keys \
     && /usr/local/bin/panasonic-programmable-keys install \
     && update-desktop-database
