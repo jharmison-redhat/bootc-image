@@ -15,4 +15,7 @@ RUN useradd -m core \
 # Enable the deployed system to pull its own updates
 COPY overlays/auth/ /
 
+# Test out kargs.d
+COPY overlays/kargs/ /
+
 RUN bootc container lint

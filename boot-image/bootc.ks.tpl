@@ -53,7 +53,7 @@ volgroup rhel pv.01
 logvol /var --percent 100 --grow --fstype xfs --vgname rhel --name var
 
 # Bootloader configuration
-bootloader --driveorder ${install_disk}
+bootloader --append="example-kargs=1" --driveorder ${install_disk}
 EOF
 
 cat /tmp/part-include
