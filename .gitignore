@@ -1,6 +1,9 @@
 *.iso
-*.btn
-*.ign
+*.ks
 auth.json
-.build
-.push
+.build*
+.push*
+boot-image/container
+overlays/users/usr/local/ssh/*.keys
+tmp/*
+!tmp/.gitkeep
