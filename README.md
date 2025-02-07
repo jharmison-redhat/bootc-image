@@ -59,21 +59,17 @@ Targets included:
     itself (authfile changes, RPM changes, `authorized_keys` changes, etc.).
 - `push`
   - Pushes the built image to the image repository. Depends on it being built.
-- `update`
-  - Runs a `dnf update` from configured remote repositories and installed
-    packages, rewriting the tag to the updated image. Includes the `push` implicitly.
 - `debug`
   - Runs the `bootc` image locally in your container runtime.
 - `iso`
-  - Prepares a RHEL CoreOS Live ISO to install the `bootc` image. This can then
-    be used to boot a Virtual Machine or bare metal instance, where it will
+  - Prepares a minimal installer image, using Anaconda and Kickstart. This can
+    then be used to boot a Virtual Machine or bare metal instance, where it will
     automatically complete the installation to disk and shut down. Depends on
-    updates to the [Butane](https://coreos.github.io/butane/) template and
-    changes to `auth.json`. Note that it does not depend on an image being built,
-    to make it simpler for one person to build the image and another to build an
-    ISO for connecting to it if provided credentials.
+    updates to the
+    [Kickstart](https://pykickstart.readthedocs.io/en/latest/kickstart-docs.html#chapter-3-kickstart-commands-in-red-hat-enterprise-linux)
+    template and changes to `auth.json`, and an image being built.
 - `burn`
-  - This will use `dd` to write the Live ISO installer image to a USB (or other
+  - This will use `dd` to write the ISO installer image to a USB (or other
     mass storage) device.
 - `clean`
   - Removes all ISOs, templated files, Make
@@ -85,7 +81,8 @@ Targets included:
 
 The minimum targets to run in order to create the `bootc` image and installation
 ISO are `make push iso`. At this point, a VM can be booted from the ISO and it
-will install the image.
+will install the image. `make vm` has been provided as a convenience, but may
+not work for you as I have it configured for my workstation's networking.
 
 If you are not me, and therefore publishing your `bootc` image to
 `registry.jharmison.com/rhel/bootc:latest`, you can override the templated
@@ -101,7 +98,12 @@ the `make` invocation or exporting them in your environment.
 
 - `RUNTIME` (default: `podman`)
   - The container runtime to use for building/pushing/pulling images.
-- `BASE` (default: `registry.redhat.io/rhel9/rhel-bootc:9.4`)
+- `RHEL_VERSION` (default: `9.5`)
+  - The version of RHEL to use for various tasks, including the base image
+- `ARCH` (default: `amd64`)
+  - The architecture to build for, if your container runtime supports doing
+    alternative-architecture builds through `qemu-user-static` or similar.
+- `BASE` (default: `registry.redhat.io/rhel9/rhel-bootc:$(RHEL_VERSION)`)
   - The base image to use in the `bootc` image. Should be a `bootc`-"compatible"
     image. See [here](https://containers.github.io/bootc/bootc-images.html) for
     more details.
@@ -113,31 +115,18 @@ the `make` invocation or exporting them in your environment.
   - The container image tag to use for building the image, including updates.
     The deployed system will be configured to follow this tag, in the repository,
     from the registry, specified.
-- `DEFAULT_DISK` (default: `vda`)
+- `DEFAULT_INSTALL_DISK` (default: `vda`)
   - The disk inside `/dev` that will be used for installation in the live ISO.
     For bare metal installation, this can be something simple like `nvme0n1` or
     something more complicated like `disk/by-path/pci-0000:01:00.0-nvme-1`. Note
     that the installer will try to use a block device if it finds exactly one
     disk, but will otherwise select this disk if it's in the system.
-- `CONNECTIVITY_TEST` (default: `google.com`)
-  - The IP address or DNS name that the installer will ping to prove connectivity.
-    If you're on a private network during installation, this should be something
-    that's adequate to prove that you can reach your container image registry.
-- `RHCOS_VERSION` (default: `4.16`)
-  - The version of RHEL CoreOS to use to put together our live ISO. Note that
-    this usage of RHCOS is wildly unsupported, but does allow us much more
-    convenient control of the installation environment than a traditional boot
-    ISO and
-    [Kickstart](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/deploying-the-rhel-bootable-images_using-image-mode-for-rhel-to-build-deploy-and-manage-operating-systems).
-    At the end of the day, the installation method should not radically change
-    the installed system as it is `bootc` inside the image that ultimately
-    performs the actual installation.
 - `ISO_SUFFIX` (default: **blank**)
   - The suffix appended to the ISO image name, including all templated
-    Butane/Ignition files. Since the defaults for the installed-and-followed
+    Kickstart files. Since the defaults for the installed-and-followed
     image tag, install disk, etc. get embedded into the image, this is useful to
     create different ISOs with different parameters. As an example, `make burn
-    DEFAULT_DISK=nvme0n1 ISO_SUFFIX=-metal` would create and burn an ISO with
+    DEFAULT_INSTALL_DISK=nvme0n1 ISO_SUFFIX=-metal` would create and burn an ISO with
     `/dev/nvme0n1` as the target install disk but otherwise unchanged from the
     defaults. This ISO wouldn't replace the default one that you may have created
     for a virtual machine, targeting `vda` (by default).
@@ -152,12 +141,12 @@ you can run a command series such as this to instantiate a VM using the default
 image output from the `iso` target:
 
 ```sh
-sudo cp -uf boot-image/bootc-rhcos.iso /var/lib/libvirt/images/
+sudo cp -uf boot-image/bootc-install.iso /var/lib/libvirt/images/
 
 virt-install --connect qemu:///system \
  --name rhel-bootc --memory 8192 \
- --vcpus 4 --disk size=20 --osinfo rhel9.4 \
- --cdrom /var/lib/libvirt/images/bootc-rhcos.iso
+ --vcpus 4 --disk size=20 --osinfo rhel9.5 \
+ --cdrom /var/lib/libvirt/images/bootc-install.iso
 ```
 
 To remove the VM completely (for example to test another image build), you can
@@ -174,4 +163,5 @@ desirable to use the `--network` parameter for `virt-install` in order to specif
 a bridge and MAC address to go along with a DHCP reservation in your environment.
 This also affords you an opportunity to use DHCP as a method of providing a
 hostname. Configuring this for your environment is left as an exercise to the
-reader, but I use `create-vm.sh` to do this in a programmatic way.
+reader, but I use `hack/create-vm.sh`, behind the `make vm` target,  to do this
+in a programmatic way.
