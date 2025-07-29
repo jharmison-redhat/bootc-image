@@ -1,6 +1,0 @@
-FROM registry.fedoraproject.org/fedora:41
-
-RUN --mount=type=tmpfs,target=/var/cache --mount=type=cache,id=dnf-cache,target=/var/cache/libdnf5 \
-    dnf -y --setopt=install_weak_deps=False install lorax pykickstart
-
-ENTRYPOINT ["mkksiso"]
