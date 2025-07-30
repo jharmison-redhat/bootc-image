@@ -1,0 +1,8 @@
+[Unit]
+Description=Regenerate the Nvidia Container Toolkit CDI specification
+Wants=nvargus-daemon.service modprobe@drm.service
+After=nvargus-daemon.service modprobe@drm.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nvidia-ctk cdi generate --output /etc/cdi/nvidia

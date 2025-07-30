@@ -1,0 +1,8 @@
+[Unit]
+Description=Update the bootloader configuration as required
+Wants=nvargus-daemon.service modprobe@drm.service
+After=nvargus-daemon.service modprobe@drm.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/nvidia-boot-update post
