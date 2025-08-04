@@ -93,7 +93,7 @@ push: .push-$(TAG)
 
 .ami-$(TAG): .push-$(TAG)
 	aws iam create-role --role-name vmimport --assume-role-policy-document file://hack/trust-policy.json
-	envsubst '$$S3_BUCKET' <hack/role-policy.json.tpl >tmp/role-policy.json
+	S3_BUCKET=$(S3_BUCKET) envsubst '$$S3_BUCKET' <hack/role-policy.json.tpl >tmp/role-policy.json
 	aws iam put-role-policy --role-name vmimport --policy-name vmimport-$$S3_BUCKET --policy-document file://tmp/role-policy.json
 	sudo --preserve-env=$$(env | awk -F= '/^AWS_/{printf "%s%s",sep,$$1; sep=","} END{print ""}') \
 		$(RUNTIME) run \
