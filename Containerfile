@@ -115,4 +115,11 @@ RUN --mount=type=tmpfs,target=/var/cache \
 # RHAIIS configuration
 COPY overlays/rhaiis/ /
 
+# cloud-init
+RUN --mount=type=tmpfs,target=/var/cache \
+    --mount=type=tmpfs,target=/var/log \
+    --mount=type=cache,id=dnf-cache,target=/var/cache/dnf \
+    dnf -y install cloud-init && \
+    ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
+
 RUN bootc container lint
