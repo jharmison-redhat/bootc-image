@@ -1,0 +1,24 @@
+[Unit]
+Description=Red Hat AI Inference Server
+
+[Container]
+ContainerName=rhaiis
+Image=registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.0
+Volume=rhaiis.volume:/opt/app-root/src/.cache
+AddDevice=nvidia.com/gpu=all
+SecurityLabelDisable=true
+ShmSize=4g
+PublishPort=8000:8000
+UserNS=keep-id:uid=1001
+Environment=VLLM_NO_USAGE_STATS=1
+EnvironmentFile=/var/vllm/.env
+Entrypoint=/bin/sh
+Exec=-c 'python3 -m vllm.entrypoints.openai.api_server $VLLM_EXEC'
+
+[Service]
+Restart=always
+# Extend Timeout to allow time to pull the image
+TimeoutStartSec=1800
+
+[Install]
+WantedBy=multi-user.target default.target

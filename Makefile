@@ -65,6 +65,7 @@ debug:
 clean:
 	rm -rf .build* .push* tmp/*
 	buildah rm --all
-	podman image prune --all --force
+	podman image rm -f -i $(IMAGE)
+	podman image prune -f
 
 endif # __mk_ready
