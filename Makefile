@@ -65,11 +65,11 @@ tmp/$(LATEST_DIGEST):
 		--rm \
 		--arch $(ARCH) \
 		--privileged \
-		--pull=never \
+		--pull=newer \
 		--security-opt=label=disable \
 		-v /var/lib/containers:/var/lib/containers \
 		--entrypoint=/usr/libexec/bootc-base-imagectl \
-		$(IMAGE)-unchunked \
+		registry.redhat.io/rhel10/rhel-bootc:latest \
 		rechunk $(IMAGE)-unchunked $(IMAGE)
 	@touch $@
 
