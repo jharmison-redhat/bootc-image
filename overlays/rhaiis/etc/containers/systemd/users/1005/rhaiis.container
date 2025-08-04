@@ -1,5 +1,7 @@
 [Unit]
 Description=Red Hat AI Inference Server
+Wants=network.target
+After=network.target
 
 [Container]
 ContainerName=rhaiis
@@ -11,9 +13,10 @@ ShmSize=4g
 PublishPort=8000:8000
 UserNS=keep-id:uid=1001
 Environment=VLLM_NO_USAGE_STATS=1
+EnvironmentFile=/etc/vllm/.env
 EnvironmentFile=/var/vllm/.env
 Entrypoint=/bin/sh
-Exec=-c 'python3 -m vllm.entrypoints.openai.api_server $VLLM_EXEC'
+Exec=-c "python3 -m vllm.entrypoints.openai.api_server $VLLM_EXEC"
 
 [Service]
 Restart=always
