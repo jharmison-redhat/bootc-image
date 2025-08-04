@@ -92,7 +92,7 @@ registry-login:
 push: .push-$(TAG)
 
 .ami-$(TAG): .push-$(TAG)
-	hack/ensure-vmimport.sh
+	S3_BUCKET=$(S3_BUCKET) hack/ensure-vmimport.sh
 	sudo --preserve-env=$$(env | awk -F= '/^AWS_/{printf "%s%s",sep,$$1; sep=","} END{print ""}') \
 		$(RUNTIME) run \
 		--rm \
