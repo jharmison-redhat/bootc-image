@@ -12,8 +12,10 @@ else
 RUNTIME ?= podman
 
 RHEL_VERSION ?= 9.6
+DRIVER_VERSION ?= 570.172.08
+CUDA_VERSION ?= 12.8
+KUBECONFIG ?= $$HOME/.kube/config
 ARCH ?= amd64
-DL_ARCH := $(subst amd64,x86_64,$(subst arm64,aarch64,$(ARCH)))
 REGISTRY ?= registry.jharmison.com
 REPOSITORY ?= rhel/bootc
 TAG ?= rhaiis-nvidia
@@ -43,16 +45,44 @@ overlays/auth/etc/ostree/auth.json:
 tmp/$(LATEST_DIGEST):
 	@touch $@
 
-.build-$(TAG): Containerfile overlays/auth/etc/ostree/auth.json overlays/users/usr/local/ssh/core.keys $(shell find overlays -type f) tmp/$(LATEST_DIGEST)
-	$(RUNTIME) build --security-opt label=disable --arch $(ARCH) --pull=newer --cap-add=all --device=/dev/fuse --from $(BASE) . -t $(IMAGE)
+.build-$(TAG)-unchunked: Containerfile overlays/auth/etc/ostree/auth.json overlays/users/usr/local/ssh/core.keys $(shell find overlays -type f) tmp/$(LATEST_DIGEST)
+	sudo $(RUNTIME) build \
+		--arch $(ARCH) \
+		--pull=newer \
+		--security-opt=label=disable \
+		--cap-add=all \
+		--device=/dev/fuse \
+		--build-arg=DRIVER_VERSION=$(DRIVER_VERSION) \
+		--build-arg=CUDA_VERSION=$(CUDA_VERSION) \
+		--from $(BASE) \
+		-f $< \
+		. \
+		-t $(IMAGE)-unchunked
+	@touch $@
+
+.build-$(TAG): .build-$(TAG)-unchunked
+	sudo $(RUNTIME) run \
+		--rm \
+		--arch $(ARCH) \
+		--privileged \
+		--pull=never \
+		--security-opt=label=disable \
+		-v /var/lib/containers:/var/lib/containers \
+		--entrypoint=/usr/libexec/bootc-base-imagectl \
+		$(IMAGE)-unchunked \
+		rechunk $(IMAGE)-unchunked $(IMAGE)
 	@touch $@
 
 .PHONY: build
 build: .build-$(TAG)
 
 .push-$(TAG): .build-$(TAG)
-	$(RUNTIME) push $(IMAGE)
+	sudo $(RUNTIME) push $(IMAGE)
 	@touch $@
+
+.PHONY: registry-login
+registry-login:
+	export KUBECONFIG="$(KUBECONFIG)" ; sudo --preserve-env=KUBECONFIG registry-login
 
 .PHONY: push
 push: .push-$(TAG)
