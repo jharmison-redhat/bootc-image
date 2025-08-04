@@ -14,13 +14,15 @@ RUNTIME ?= podman
 RHEL_VERSION ?= 9.6
 DRIVER_VERSION ?= 570.172.08
 CUDA_VERSION ?= 12.8
+SHORT_RHEL_VERSION :=  $(word 1,$(subst ., ,$(RHEL_VERSION)))
 KUBECONFIG ?= $$HOME/.kube/config
 ARCH ?= amd64
 REGISTRY ?= registry.jharmison.com
 REPOSITORY ?= rhel/bootc
 TAG ?= rhaiis-nvidia
 IMAGE = $(REGISTRY)/$(REPOSITORY):$(TAG)
-BASE ?= registry.redhat.io/rhel9/rhel-bootc:$(RHEL_VERSION)
+BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/rhel-bootc:$(RHEL_VERSION)
+BIB_BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/bootc-image-builder:latest
 LATEST_DIGEST := $(shell hack/latest_base.sh $(BASE) $(ARCH))
 
 .PHONY: all
