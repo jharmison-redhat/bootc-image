@@ -11,7 +11,6 @@ ARG BASE_URL='https://us.download.nvidia.com/tesla'
 COPY overlays/nvidia-builder/ /
 
 RUN --mount=type=tmpfs,target=/var/cache \
-    --mount=type=tmpfs,target=/var/log \
     --mount=type=cache,id=dnf-cache,target=/var/cache/dnf \
     chown -R 1001:0 /home/builder && \
     dnf -y install git rpm-build kernel-devel-matched kernel-headers
@@ -63,7 +62,6 @@ ARG CUDA_VERSION
 
 # Perform some basic package installation
 RUN --mount=type=tmpfs,target=/var/cache \
-    --mount=type=tmpfs,target=/var/log \
     --mount=type=cache,id=dnf-cache,target=/var/cache/dnf \
     dnf -y install \
     firewalld \
@@ -86,7 +84,6 @@ RUN dnf -y install /opt/nvidia/rpms/kmod-nvidia-*.rpm
 
 COPY overlays/nvidia/ /
 RUN --mount=type=tmpfs,target=/var/cache \
-    --mount=type=tmpfs,target=/var/log \
     --mount=type=cache,id=dnf-cache,target=/var/cache/dnf \
     setsebool -P container_use_devices 1 && \
     DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) && \
@@ -98,7 +95,6 @@ RUN --mount=type=tmpfs,target=/var/cache \
     dnf -y install dnf-plugin-nvidia && \
     dnf -y module enable nvidia-driver:${DRIVER_STREAM}/default
 RUN --mount=type=tmpfs,target=/var/cache \
-    --mount=type=tmpfs,target=/var/log \
     --mount=type=cache,id=dnf-cache,target=/var/cache/dnf \
     CUDA_VERSION_ARRAY=(${CUDA_VERSION//./ }) && \
     CUDA_DASHED_VERSION=${CUDA_VERSION_ARRAY[0]}-${CUDA_VERSION_ARRAY[1]} && \
@@ -117,9 +113,10 @@ COPY overlays/rhaiis/ /
 
 # cloud-init
 RUN --mount=type=tmpfs,target=/var/cache \
-    --mount=type=tmpfs,target=/var/log \
     --mount=type=cache,id=dnf-cache,target=/var/cache/dnf \
     dnf -y install cloud-init && \
     ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
 
-RUN bootc container lint
+# Clean out any remaining /var and lint
+RUN rm -rf /var/* && \
+    bootc container lint
