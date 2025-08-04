@@ -94,8 +94,8 @@ debug:
 .PHONY: clean
 clean:
 	rm -rf .build* .push* tmp/*
-	buildah rm --all
-	podman image rm -f -i $(IMAGE)
-	podman image prune -f
+	sudo buildah rm --all
+	sudo podman image rm -f -i $(IMAGE)
+	sudo podman image prune -f
 
 endif # __mk_ready
