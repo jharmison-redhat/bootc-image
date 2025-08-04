@@ -3,5 +3,6 @@
 auth.json
 .build*
 .push*
+.ami*
 tmp
 !tmp/.gitkeep

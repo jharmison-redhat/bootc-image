@@ -24,6 +24,8 @@ IMAGE = $(REGISTRY)/$(REPOSITORY):$(TAG)
 BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/rhel-bootc:$(RHEL_VERSION)
 BIB_BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/bootc-image-builder:latest
 LATEST_DIGEST := $(shell hack/latest_base.sh $(BASE) $(ARCH))
+S3_BUCKET ?= rhel-bootc
+AWS_REGION ?= us-east-2
 
 .PHONY: all
 all: .push-$(TAG)
@@ -88,6 +90,28 @@ registry-login:
 
 .PHONY: push
 push: .push-$(TAG)
+
+.ami-$(TAG): .push-$(TAG)
+	sudo --preserve-env=$$(env | awk -F= '/^AWS_/{printf "%s%s",sep,$$1; sep=","} END{print ""}') \
+		$(RUNTIME) run \
+		--rm \
+		--arch $(ARCH) \
+		--privileged \
+		--pull=newer \
+		--env 'AWS_*' \
+		--security-opt=label=disable \
+		-v /var/lib/containers/storage:/var/lib/containers/storage \
+		$(BIB_BASE) \
+		build \
+		--type ami \
+		--aws-ami-name $(TAG) \
+		--aws-bucket $(S3_BUCKET) \
+		--aws-region $(AWS_REGION) \
+		$(IMAGE)
+	@touch $@
+
+.PHONY: ami
+ami: .ami-$(TAG)
 
 .PHONY: debug
 debug:
