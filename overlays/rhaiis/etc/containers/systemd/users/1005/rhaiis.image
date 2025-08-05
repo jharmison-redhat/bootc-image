@@ -1,0 +1,3 @@
+[Image]
+AuthFile=/etc/vllm/auth.json
+Image=registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.0

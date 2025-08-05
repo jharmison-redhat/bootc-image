@@ -38,10 +38,18 @@ overlays/auth/etc/ostree/auth.json:
 		exit 1; \
 	fi
 
+overlays/rhaiis/etc/vllm/auth.json:
+	@if [ -e "$@" ]; then \
+		touch "$@"; \
+	else \
+		echo "Please put the auth.json for registry.redhat.io in order to be able to download RHAIIS in $@" >&2; \
+		exit 1; \
+	fi
+
 tmp/$(LATEST_DIGEST):
 	@touch $@
 
-.build-$(TAG)-unchunked: Containerfile overlays/auth/etc/ostree/auth.json $(shell find overlays -type f) tmp/$(LATEST_DIGEST)
+.build-$(TAG)-unchunked: Containerfile overlays/auth/etc/ostree/auth.json overlays/rhaiis/etc/vllm/auth.json $(shell find overlays -type f) tmp/$(LATEST_DIGEST)
 	sudo $(RUNTIME) build \
 		--arch $(ARCH) \
 		--pull=newer \

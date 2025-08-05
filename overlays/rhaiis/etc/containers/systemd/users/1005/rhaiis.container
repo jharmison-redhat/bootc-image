@@ -12,6 +12,7 @@ SecurityLabelDisable=true
 ShmSize=4g
 PublishPort=8000:8000
 UserNS=keep-id:uid=1001
+Pull=never
 Environment=VLLM_NO_USAGE_STATS=1
 EnvironmentFile=/etc/vllm/.env
 EnvironmentFile=/var/vllm/.env
