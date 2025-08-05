@@ -5,7 +5,7 @@ After=network.target
 
 [Container]
 ContainerName=rhaiis
-Image=registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.0
+Image=rhaiis.image
 Volume=rhaiis.volume:/opt/app-root/src/.cache
 AddDevice=nvidia.com/gpu=all
 SecurityLabelDisable=true
