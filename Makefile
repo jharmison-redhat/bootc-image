@@ -30,14 +30,6 @@ AWS_REGION ?= us-east-2
 .PHONY: all
 all: .push-$(TAG)
 
-overlays/users/usr/local/ssh/core.keys:
-	@if [ -e "$@" ]; then \
-		touch "$@"; \
-	else \
-		echo "Please put the authorized_keys file you would like for the core user in $@" >&2; \
-		exit 1; \
-	fi
-
 overlays/auth/etc/ostree/auth.json:
 	@if [ -e "$@" ]; then \
 		touch "$@"; \
@@ -49,7 +41,7 @@ overlays/auth/etc/ostree/auth.json:
 tmp/$(LATEST_DIGEST):
 	@touch $@
 
-.build-$(TAG)-unchunked: Containerfile overlays/auth/etc/ostree/auth.json overlays/users/usr/local/ssh/core.keys $(shell find overlays -type f) tmp/$(LATEST_DIGEST)
+.build-$(TAG)-unchunked: Containerfile overlays/auth/etc/ostree/auth.json $(shell find overlays -type f) tmp/$(LATEST_DIGEST)
 	sudo $(RUNTIME) build \
 		--arch $(ARCH) \
 		--pull=newer \

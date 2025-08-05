@@ -69,11 +69,6 @@ RUN --mount=type=tmpfs,target=/var/cache \
     curl \
     man-db
 
-# Basic user configuration with nss-altfiles
-COPY overlays/users/ /
-RUN useradd -m core && \
-    chown core:core /usr/local/ssh/core.keys
-
 # Enable the deployed system to pull its own updates
 COPY overlays/auth/ /
 
