@@ -1,3 +1,3 @@
 [Image]
 AuthFile=/etc/vllm/auth.json
-Image=registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.0
+Image=registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.0-1754088865-hotfix-1
