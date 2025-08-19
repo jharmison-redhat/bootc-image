@@ -116,7 +116,7 @@ ami: .ami-$(TAG)
 
 .PHONY: debug
 debug:
-	$(RUNTIME) run --rm -it --arch $(ARCH) --pull=never --entrypoint /bin/bash $(IMAGE) -li
+	sudo $(RUNTIME) run --rm -it --arch $(ARCH) --pull=never --entrypoint /bin/bash $(IMAGE) -li
 
 .PHONY: clean
 clean:
