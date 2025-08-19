@@ -103,15 +103,15 @@ RUN --mount=type=tmpfs,target=/var/cache \
     nvidia-container-toolkit \
     nvtop
 
-# RHAIIS configuration
-COPY overlays/rhaiis/ /
-RUN chown -R 1005:1005 /etc/vllm
-
 # cloud-init
 RUN --mount=type=tmpfs,target=/var/cache \
     --mount=type=cache,id=dnf-cache,target=/var/cache/dnf \
     dnf -y install cloud-init && \
     ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
+
+# RHAIIS configuration
+COPY overlays/rhaiis/ /
+RUN chown -R 1005:1005 /etc/vllm
 
 # Clean out any remaining /var and lint
 RUN rm -rf /var/* && \
