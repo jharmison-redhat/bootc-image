@@ -1,7 +1,7 @@
 [Unit]
 Description=Red Hat AI Inference Server
-Wants=network.target
-After=network.target
+Wants=podman-user-wait-network-online.service
+After=podman-user-wait-network-online.service
 
 [Container]
 ContainerName=rhaiis

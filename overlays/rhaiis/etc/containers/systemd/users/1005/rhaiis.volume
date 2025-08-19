@@ -1,2 +1,7 @@
+[Unit]
+Description=Red Hat AI Inference Server Storage Volume
+Wants=podman-user-wait-network-online.service
+After=podman-user-wait-network-online.service
+
 [Volume]
 VolumeName=rhaiis

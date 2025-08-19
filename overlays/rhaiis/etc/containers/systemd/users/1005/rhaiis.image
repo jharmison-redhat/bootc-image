@@ -1,3 +1,8 @@
+[Unit]
+Description=Red Hat AI Inference Server Image
+Wants=podman-user-wait-network-online.service
+After=podman-user-wait-network-online.service
+
 [Image]
 AuthFile=/etc/vllm/auth.json
 Image=registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.0-1754088865-hotfix-1
