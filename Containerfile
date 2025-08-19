@@ -105,6 +105,7 @@ RUN --mount=type=tmpfs,target=/var/cache \
 
 # RHAIIS configuration
 COPY overlays/rhaiis/ /
+RUN chown -R 1005:1005 /etc/vllm
 
 # cloud-init
 RUN --mount=type=tmpfs,target=/var/cache \
