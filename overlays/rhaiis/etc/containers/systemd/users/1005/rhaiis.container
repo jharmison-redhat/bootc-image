@@ -22,6 +22,7 @@ Exec=-c "python3 -m vllm.entrypoints.openai.api_server $VLLM_EXEC"
 Restart=always
 # Extend Timeout to allow time to pull the image
 TimeoutStartSec=1800
+ExecStartPre=touch /var/vllm/.env
 
 [Install]
 WantedBy=multi-user.target default.target
