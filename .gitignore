@@ -1,6 +1,5 @@
 *.iso
 *.ks
-auth.json
 .build*
 .push*
 .ami*
