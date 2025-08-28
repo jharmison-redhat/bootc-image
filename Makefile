@@ -91,29 +91,6 @@ registry-login:
 .PHONY: push
 push: .push-$(TAG)
 
-.ami-$(TAG): .push-$(TAG)
-	S3_BUCKET=$(S3_BUCKET) hack/ensure-vmimport.sh
-	sudo --preserve-env=$$(env | awk -F= '/^AWS_/{printf "%s%s",sep,$$1; sep=","} END{print ""}') \
-		$(RUNTIME) run \
-		--rm \
-		--arch $(ARCH) \
-		--privileged \
-		--pull=newer \
-		--env 'AWS_*' \
-		--security-opt=label=disable \
-		-v /var/lib/containers/storage:/var/lib/containers/storage \
-		$(BIB_BASE) \
-		build \
-		--type ami \
-		--aws-ami-name $(TAG) \
-		--aws-bucket $(S3_BUCKET) \
-		--aws-region $(AWS_REGION) \
-		$(IMAGE)
-	@touch $@
-
-.PHONY: ami
-ami: .ami-$(TAG)
-
 .PHONY: debug
 debug:
 	sudo $(RUNTIME) run --rm -it --arch $(ARCH) --pull=never --entrypoint /bin/bash $(IMAGE) -li
