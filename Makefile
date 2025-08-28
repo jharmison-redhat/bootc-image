@@ -22,10 +22,7 @@ REPOSITORY ?= rhel/bootc
 TAG ?= nvidia-base
 IMAGE = $(REGISTRY)/$(REPOSITORY):$(TAG)
 BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/rhel-bootc:$(RHEL_VERSION)
-BIB_BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/bootc-image-builder:latest
 LATEST_DIGEST := $(shell hack/latest_base.sh $(BASE) $(ARCH))
-S3_BUCKET ?= rhel-bootc
-AWS_REGION ?= us-east-2
 
 .PHONY: all
 all: .push-$(TAG)
