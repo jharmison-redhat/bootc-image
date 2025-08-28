@@ -19,7 +19,7 @@ KUBECONFIG ?= $$HOME/.kube/config
 ARCH ?= amd64
 REGISTRY ?= registry.jharmison.com
 REPOSITORY ?= rhel/bootc
-TAG ?= rhaiis-nvidia
+TAG ?= nvidia-base
 IMAGE = $(REGISTRY)/$(REPOSITORY):$(TAG)
 BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/rhel-bootc:$(RHEL_VERSION)
 BIB_BASE ?= registry.redhat.io/rhel$(SHORT_RHEL_VERSION)/bootc-image-builder:latest
@@ -43,14 +43,6 @@ overlays/auth/etc/ostree/auth.json:
 		touch "$@"; \
 	else \
 		echo "Please put the auth.json for your registry $(REG_REPO) in $@" >&2; \
-		exit 1; \
-	fi
-
-overlays/rhaiis/etc/vllm/auth.json:
-	@if [ -e "$@" ]; then \
-		touch "$@"; \
-	else \
-		echo "Please put the auth.json for registry.redhat.io in order to be able to download RHAIIS in $@" >&2; \
 		exit 1; \
 	fi
 

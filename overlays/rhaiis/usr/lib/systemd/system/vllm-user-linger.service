@@ -1,9 +1,0 @@
-[Unit]
-Description=Ensure that the vllm user has a lingering systemd user session
-Wants=network.target
-After=network.target
-ConditionPathExists=!/var/lib/systemd/linger/vllm
-
-[Service]
-Type=oneshot
-ExecStart=loginctl enable-linger vllm
