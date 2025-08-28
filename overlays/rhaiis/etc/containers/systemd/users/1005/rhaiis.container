@@ -11,7 +11,7 @@ AddDevice=nvidia.com/gpu=all
 SecurityLabelDisable=true
 ShmSize=4g
 PublishPort=8000:8000
-UserNS=keep-id:uid=1001
+UserNS=keep-id:uid=1005
 Pull=never
 EnvironmentFile=/etc/vllm/.env
 EnvironmentFile=/var/vllm/.env
