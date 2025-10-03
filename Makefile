@@ -83,6 +83,10 @@ iso: boot-image/bootc-install$(ISO_SUFFIX).iso
 vm: boot-image/bootc-install$(ISO_SUFFIX).iso
 	@hack/create_vm.sh $(ISO_SUFFIX)
 
+.PHONY: debug
+debug:
+	sudo $(RUNTIME) run --rm -it --arch $(ARCH) --pull=never --entrypoint /bin/bash $(IMAGE) -li
+
 .PHONY: clean
 clean:
 	sudo rm -rf .build* .push* boot-image/*.iso boot-image/*.ks boot-image/container* tmp/*
