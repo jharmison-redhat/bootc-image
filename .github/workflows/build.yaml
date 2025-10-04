@@ -1,0 +1,10 @@
+name: Build, rechunk, and push image
+on:
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: jharmison-redhat/action-bootc-build@main
